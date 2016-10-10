@@ -1,0 +1,64 @@
+1) A method that returns the sum of two integers
+
+>> Casual
+Given two integers...
+Add the two integers
+Return the result
+
+>> Formal
+START
+
+# Given two integers
+SET result = integer1 + integer2
+RETURN result
+
+END
+
+
+
+2) A method that takes an array of strings, and returns a string that is all those strings concatenated together
+
+>> Casual
+Given an array of strings...
+Set an empty 'full_string' value
+Iterate through the array of strings
+  - take each string and concatenate it to the 'full_string'
+Return the 'full_string'
+
+>> Formal
+START
+
+SET full_string = ''
+# Given an array of strings
+FOR each string
+  SET full_string = full_string + string
+
+RETURN full_string
+
+end
+
+
+
+3) A method that takes an array of integers, and returns a new array with every other element
+
+>> Casual
+Given an array of integers...
+Set an empty 'new_array' value
+Set an iterator value to 0
+Iterate through each element of the old array
+  - If for odd iterator values, take the old array element at that index, and push it to the end of the new array
+Return the new array
+
+>> Formal
+START
+
+# Given an array of integers...
+
+SET new_array = []
+SET iterator = 0
+FOR each element in new_array
+  - if iterator is odd
+    - set new_array.push(old_array[iterator])
+RETURN new_array
+
+END
