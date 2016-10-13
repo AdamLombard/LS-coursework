@@ -1,36 +1,59 @@
-# ask the user for two numbers
-# ask the user for an operation to perform
-# perform the operation on the two numbers
-# ouput the result
-def prompt(message)
+# Adding the messages YAML file was an interesting exercise,
+# but it breaks any messages that aren't in the file, and I
+# don't understand how to have variable messages in the YAML...
+#
+# I don't want to get bogged down on this right now, but I'll
+# have to revist it someday...
+
+require 'yaml'
+MESSAGES = YAML.load_file('calculator_messages.yml')
+LANGUAGE = 'es'
+
+def messages(message, lang = 'en')
+  MESSAGES[lang][message]
+end
+
+def prompt(key)
+  message = messages(key, LANGUAGE)
   Kernel.puts("=> #{message}")
 end
 
 def valid_number?(num)
-  num.to_i() != 0
+  integer?(num) || float?(num)
+end
+
+def integer?(input)
+  input.to_i.to_s == input
+end
+
+def float?(input)
+  input.to_f.to_s == input
 end
 
 def operation_to_message(op)
-  case op
-  when '1'
-    'Adding'
-  when '2'
-    'Subtracting'
-  when '3'
-    'Multiplying'
-  when '4'
-    'Dividing'
-  end
+  msg_val = case op
+            when '1'
+              'Adding'
+            when '2'
+              'Subtracting'
+            when '3'
+              'Multiplying'
+            when '4'
+              'Dividing'
+            end
+  msg_val
 end
 
-prompt("Welcome to Calculator! Enter your name:")
+# Calculator
+
+prompt('welcome')
 
 name = ''
 loop do
-  name = Kernel.gets.chomp
+  name = Kernel.gets.chomp.capitalize
 
   if name.empty?
-    prompt("Make sure to use a valid name...")
+    prompt('valid_name')
   else
     break
   end
@@ -41,25 +64,25 @@ prompt("Hi, #{name}!")
 loop do # main loop
   number1 = ""
   loop do
-    prompt("What's the first number?")
+    prompt('first_num_query')
     number1 = Kernel.gets.chomp
 
     if valid_number?(number1)
       break
     else
-      prompt("Hmm... that doesn't look like a valid number...")
+      prompt('wrong_num')
     end
   end
 
   number2 = ""
   loop do
-    prompt("What's the second number?")
+    prompt('second_num_query')
     number2 = Kernel.gets.chomp
 
     if valid_number?(number2)
       break
     else
-      prompt("Hmm... that doesn't look like a valid number...")
+      prompt('wrong_num')
     end
   end
 
@@ -89,20 +112,20 @@ loop do # main loop
 
   result =  case operator
             when '1'
-              number1.to_i + number2.to_i
+              number1.to_f + number2.to_f
             when '2'
-              number1.to_i - number2.to_i
+              number1.to_f - number2.to_f
             when '3'
-              number1.to_i * number2.to_i
+              number1.to_f * number2.to_f
             when '4'
               number1.to_f / number2.to_f
             end
 
   prompt("The result is #{result}.")
 
-  prompt("Do you want to perform another calculation? (Y to calculate again)")
+  prompt('go_again')
   answer = Kernel.gets.chomp
   break unless answer.downcase.start_with?('y')
 end
 
-prompt("Thanks for using Calculator! Goodbye!")
+prompt('goodbye')
