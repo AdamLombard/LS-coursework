@@ -53,7 +53,8 @@ loop do
 
   # collect interest rate
   message = "Please enter your APR (2.5 for 2.5%, etc.):"
-  annual_interest_rate  = (request_input(message).to_f / 100)
+  apr = request_input(message).to_f
+  annual_interest_rate  = (apr / 100)
   monthly_interest_rate = (annual_interest_rate / 12)
 
   # calculate monthly payment
@@ -70,7 +71,7 @@ loop do
 
   # display results
   prompt(SEPARATOR)
-  prompt("Loan amount:            $#{loan_amount}")
+  prompt("Loan amount:            $#{loan_amount} at #{apr}%")
   prompt("Monthly payments:       $#{monthly_payment} for #{n} months")
   prompt("Total of all payments:  $#{total_payments}")
 
