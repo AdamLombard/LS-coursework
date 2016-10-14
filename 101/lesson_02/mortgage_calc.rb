@@ -1,4 +1,6 @@
-# METHODS -----
+# Loan Calculator
+
+# METHODS
 # format a message
 def prompt(message)
   puts "=> #{message}"
@@ -29,10 +31,10 @@ def valid_number?(value)
   integer?(value) || float?(value)
 end
 
-# CONSTANTS -----
+# CONSTANTS
 SEPARATOR = "-----------------------------------------------------"
 
-# LOAN CALCULATOR -----
+# LOAN CALCULATOR
 # welcome the user
 prompt(SEPARATOR)
 prompt("Welcome to the Loan-o-Matic 3000!")
@@ -59,12 +61,14 @@ loop do
   j = monthly_interest_rate
   n = loan_duration
   monthly_payment = p * (j / (1 - (1 + j)**-n))
-  total_payments  = monthly_payment * loan_duration
 
+  # format results
+  total_payments  = monthly_payment * loan_duration
   monthly_payment = format('%02.2f', monthly_payment)
   total_payments  = format('%02.2f', total_payments)
   loan_amount     = format('%02.2f', loan_amount)
 
+  # display results
   prompt(SEPARATOR)
   prompt("Loan amount:            $#{loan_amount}")
   prompt("Monthly payments:       $#{monthly_payment} for #{n} months")
@@ -77,6 +81,6 @@ loop do
   break unless response.downcase.start_with?('y')
 end
 
-# Thank user and end program
+# thank user
 puts
 prompt("Thank you for using the Loan-o-Matic! Bye!")
