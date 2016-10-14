@@ -1,12 +1,7 @@
-# Loan Calculator
-
-# METHODS
-# format a message
 def prompt(message)
   puts "=> #{message}"
 end
 
-# get user input
 def request_input(message)
   response = ''
   loop do
@@ -18,7 +13,6 @@ def request_input(message)
   response
 end
 
-# validate input
 def integer?(value)
   /^\d+$/.match(value)
 end
@@ -31,57 +25,65 @@ def valid_number?(value)
   integer?(value) || float?(value)
 end
 
-# CONSTANTS
+def continue?
+  validate_yn == 'y' ? TRUE : FALSE
+end
+
+def validate_yn
+  yes_no = ''
+  prompt("Would you like to calculate another loan? (Y/N)")
+  loop do
+    yes_no = gets.chomp.downcase
+    break if yes_no == 'y' || yes_no == 'n'
+    prompt("Please reply with 'Y' or 'N'...")
+  end
+  yes_no
+end
+
+def clear_screen
+  system('clear') || system('cls')
+end
+
 SEPARATOR = "-----------------------------------------------------"
 
-# LOAN CALCULATOR
-# welcome the user
+clear_screen
 prompt(SEPARATOR)
 prompt("Welcome to the Loan-o-Matic 3000!")
 
-# main loop
 loop do
   prompt(SEPARATOR)
 
-  # collect loan amount
   message = "Please enter your loan amount:"
   loan_amount = request_input(message).to_f
 
-  # collect loan duration
   message = "Please enter your loan duration, in number of months:"
-  loan_duration = request_input(message).to_i
+  loan_duration = request_input(message).to_f
 
-  # collect interest rate
   message = "Please enter your APR (2.5 for 2.5%, etc.):"
   apr = request_input(message).to_f
   annual_interest_rate  = (apr / 100)
   monthly_interest_rate = (annual_interest_rate / 12)
 
-  # calculate monthly payment
   p = loan_amount
   j = monthly_interest_rate
   n = loan_duration
   monthly_payment = p * (j / (1 - (1 + j)**-n))
 
-  # format results
   total_payments  = monthly_payment * loan_duration
   monthly_payment = format('%02.2f', monthly_payment)
   total_payments  = format('%02.2f', total_payments)
   loan_amount     = format('%02.2f', loan_amount)
 
-  # display results
   prompt(SEPARATOR)
   prompt("Loan amount:            $#{loan_amount} at #{apr}%")
   prompt("Monthly payments:       $#{monthly_payment} for #{n} months")
   prompt("Total of all payments:  $#{total_payments}")
 
-  # query user regarding another calculation
   puts
-  prompt("Would you like to calculate another loan? (Y/N)")
-  response = gets.chomp
-  break unless response.downcase.start_with?('y')
+  break unless continue?
+  clear_screen
 end
 
-# thank user
+clear_screen
 puts
 prompt("Thank you for using the Loan-o-Matic! Bye!")
