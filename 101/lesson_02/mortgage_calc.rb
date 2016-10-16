@@ -54,29 +54,27 @@ loop do
   prompt(SEPARATOR)
 
   message = "Please enter your loan amount:"
-  loan_amount = request_input(message).to_f
+  amount = request_input(message).to_f
 
   message = "Please enter your loan duration, in number of months:"
-  loan_duration = request_input(message).to_f
+  duration = request_input(message).to_f
 
   message = "Please enter your APR (2.5 for 2.5%, etc.):"
-  apr = request_input(message).to_f
-  annual_interest_rate  = (apr / 100)
-  monthly_interest_rate = (annual_interest_rate / 12)
+  apr           = request_input(message).to_f
 
-  p = loan_amount
-  j = monthly_interest_rate
-  n = loan_duration
-  monthly_payment = p * (j / (1 - (1 + j)**-n))
+  annual_rate     = (apr / 100)
+  monthly_rate    = (annual_rate / 12)
+  growth_factor   = (1 - (1 + monthly_rate)**-duration)
+  monthly_payment = amount * (monthly_rate / growth_factor)
+  total_payments  = monthly_payment * duration
 
-  total_payments  = monthly_payment * loan_duration
+  amount          = format('%02.2f', amount)
   monthly_payment = format('%02.2f', monthly_payment)
   total_payments  = format('%02.2f', total_payments)
-  loan_amount     = format('%02.2f', loan_amount)
 
   prompt(SEPARATOR)
-  prompt("Loan amount:            $#{loan_amount} at #{apr}%")
-  prompt("Monthly payments:       $#{monthly_payment} for #{n} months")
+  prompt("Loan amount:            $#{amount} at #{apr}%")
+  prompt("Monthly payments:       $#{monthly_payment} for #{duration} months")
   prompt("Total of all payments:  $#{total_payments}")
 
   puts
@@ -85,5 +83,6 @@ loop do
 end
 
 clear_screen
-puts
+prompt(SEPARATOR)
 prompt("Thank you for using the Loan-o-Matic! Bye!")
+prompt(SEPARATOR)
