@@ -7,7 +7,7 @@ def request_input(message)
   loop do
     prompt(message)
     response = gets.chomp.delete("$,%")
-    break if valid_number?(response) && response.to_f > 0
+    break if valid_number?(response) && response.to_f.positive?
     prompt("! - Please enter a number greater than zero...")
   end
   response
