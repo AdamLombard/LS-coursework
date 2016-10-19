@@ -60,7 +60,7 @@ loop do
   duration = request_input(message).to_f
 
   message = "Please enter your APR (2.5 for 2.5%, etc.):"
-  apr           = request_input(message).to_f
+  apr             = request_input(message).to_f
 
   annual_rate     = (apr / 100)
   monthly_rate    = (annual_rate / 12)
