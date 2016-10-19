@@ -1,19 +1,17 @@
-require 'pry'
-
-GAME_WIDTH            = 62
-SEPARATOR             = "-"*GAME_WIDTH
+GAME_WIDTH            = 63
+SEPARATOR             = ("-" * GAME_WIDTH)
 DISPLAY_CHOICES       = %w((R)ock (P)aper (S)cissors (L)izard Spoc(k))
 VALID_PLAYER_CHOICES  = %w(rock r paper p scissors s lizard l spock k)
-WIN_SCENARIOS         = {  rock:     {scissors: "crushes",
-                                      lizard:   "crushes"     },
-                           paper:    {rock:     "covers",
-                                      spock:    "disproves"   },
-                           scissors: {paper:    "cuts",
-                                      lizard:   "decapitates" },
-                           lizard:   {paper:    "eats",
-                                      spock:    "poisons"     },
-                           spock:    {scissors: "smashes",
-                                      rock:     "vaporizes"   } }
+WIN_SCENARIOS         = {  rock:     { scissors: "crushes",
+                                       lizard:   "crushes"     },
+                           paper:    { rock:     "covers",
+                                       spock:    "disproves"   },
+                           scissors: { paper:    "cuts",
+                                       lizard:   "decapitates" },
+                           lizard:   { paper:    "eats",
+                                       spock:    "poisons"     },
+                           spock:    { scissors: "smashes",
+                                       rock:     "vaporizes"   } }
 WINNER_USER           = "You win"
 WINNER_COMPUTER       = "Computer wins"
 WINNER_NONE           = "It's a tie"
@@ -27,7 +25,12 @@ def clear_screen
 end
 
 def win?(first, second)
-  WIN_SCENARIOS[first.to_sym].has_key?(second.to_sym)
+  WIN_SCENARIOS[first.to_sym].key?(second.to_sym)
+end
+
+def action_description(gesture1, gesture2)
+  action = WIN_SCENARIOS[gesture1.to_sym][gesture2.to_sym]
+  "#{gesture1.capitalize} #{action} #{gesture2.capitalize}"
 end
 
 def calculate_winner(player, computer)
@@ -37,38 +40,6 @@ def calculate_winner(player, computer)
     WINNER_COMPUTER
   else
     WINNER_NONE
-  end
-end
-
-def action_description(a1, a2)
-  case
-  when a1 == 'scissors' && a2 == 'paper' then 'cuts'
-  when 'paper' && 'rock'
-    binding.pry
-    'covers'
-  when 'rock' && 'lizard'
-    binding.pry
-    'crushes'
-  when 'lizard' && 'spock'
-    binding.pry
-    'poisons'
-  when 'spock' && 'scissors'
-    'smashes'
-  when 'scissors' && 'lizard'
-    binding.pry
-    'decapitates'
-  when 'lizard' && 'paper'
-    binding.pry
-    'eats'
-  when 'paper' && 'spock'
-    binding.pry
-    'disproves'
-  when 'spock' && 'rock'
-    binding.pry
-    'vaporizes'
-  when 'rock' && 'scissors'
-    binding.pry
-    'crushes'
   end
 end
 
@@ -83,18 +54,22 @@ def translate_choice(value)
   end
 end
 
-def display_scores(user, computer)
-  user_display  = "Player : #{user}"
-  comp_display  = "Computer : #{computer}"
-  zone_width    = (GAME_WIDTH / 2)
+def refresh_display(user, computer)
+  clear_screen
+  u_score     = "Player : #{user}"
+  s_score     = "Computer : #{computer}"
+  limit_msg   = "First to 5 wins!"
+  zone_width  = (GAME_WIDTH / 3)
   puts(SEPARATOR)
-  puts(user_display.ljust(zone_width) + comp_display.rjust(zone_width))
+  puts(u_score.ljust(zone_width) +
+       limit_msg.center(zone_width) +
+       s_score.rjust(zone_width))
   puts(SEPARATOR)
 end
 
 def continue?
   yes_no = ''
-  prompt("Play again? (Y/N)")
+  prompt("Continue? (Y/N)")
   loop do
     yes_no = gets.chomp.downcase
     break if yes_no == 'y' || yes_no == 'n'
@@ -103,64 +78,59 @@ def continue?
   yes_no == 'y' ? TRUE : FALSE
 end
 
-user_score      = 0
-computer_score  = 0
-loop do
-  clear_screen
-  display_scores(user_score, computer_score)
-
+def user_input
   user_choice = ''
   loop do
     prompt("Choose one: #{DISPLAY_CHOICES.join(', ')}")
     user_choice = gets.chomp
 
-    if VALID_PLAYER_CHOICES.include?(user_choice)
-      break
-    else
-      prompt("That's not a valid choice...")
-    end
+    break if VALID_PLAYER_CHOICES.include?(user_choice)
+    prompt("That's not a valid choice...")
   end
-  user_choice = translate_choice(user_choice)
+  user_choice
+end
 
-  computer_choice = VALID_PLAYER_CHOICES.sample
-  computer_choice = translate_choice(computer_choice)
+def display_final_scores(user, computer)
+  if user > computer
+    vs_score = "#{user} to #{computer}"
+    prompt("You won the tournament, #{vs_score}! Nice job!")
+  else
+    vs_score = "#{computer} to #{user}"
+    prompt("The computer won the tournament, #{vs_score}. :(")
+    prompt("Oh no, the machines are taking over!!!")
+  end
+end
 
-  action = ''
-  case calculate_winner(user_choice, computer_choice)
-  when WINNER_USER
-    win_msg = WINNER_USER
-    action  = action_description(user_choice, computer_choice)
-    action  = "#{user_choice.capitalize} #{action} #{computer_choice.capitalize}"
+user_score      = 0
+computer_score  = 0
+loop do
+  refresh_display(user_score, computer_score)
+
+  user_choice = translate_choice(user_input)
+  comp_choice = translate_choice(VALID_PLAYER_CHOICES.sample)
+
+  win_msg = calculate_winner(user_choice, comp_choice)
+  if win_msg == WINNER_USER
+    action = action_description(user_choice, comp_choice)
     user_score += 1
-  when WINNER_COMPUTER
-    win_msg = WINNER_COMPUTER
-    action  = action_description(computer_choice, user_choice)
-    action  = "#{computer_choice.capitalize} #{action} #{user_choice.capitalize}"
+  elsif win_msg == WINNER_COMPUTER
+    action = action_description(comp_choice, user_choice)
     computer_score += 1
-  when WINNER_NONE
-    action = "Wow"
-    win_msg = WINNER_NONE
+  else
+    action = "Wow, this is tense"
   end
 
-  clear_screen
-  display_scores(user_score, computer_score)
+  refresh_display(user_score, computer_score)
   prompt("Player   : #{user_choice}")
-  prompt("Computer : #{computer_choice}")
+  prompt("Computer : #{comp_choice}")
   puts
-  prompt("#{win_msg}! #{action}!")
+  prompt("#{action}! #{win_msg}! ")
   puts
 
   if user_score < 5 && computer_score < 5
     break unless continue?
   else
-    if user_score > computer_score
-      vs_score = "#{user_score} to #{computer_score}"
-      prompt("You won the tournament, #{vs_score}! Nice job!")
-    else
-      vs_score = "#{computer_score} to #{user_score}"
-      prompt("The computer won, #{vs_score}!")
-      prompt("Oh no, the machines are taking over!!!")
-    end
+    display_final_scores(user_score, computer_score)
     break
   end
 end
