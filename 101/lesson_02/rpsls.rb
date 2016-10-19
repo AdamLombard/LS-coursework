@@ -12,9 +12,13 @@ WIN_SCENARIOS         = {  rock:     { scissors: "crushes",
                                        spock:    "poisons"     },
                            spock:    { scissors: "smashes",
                                        rock:     "vaporizes"   } }
-WINNER_USER           = "You win"
-WINNER_COMPUTER       = "Computer wins"
-WINNER_NONE           = "It's a tie"
+WINNER_USER           = "You win!"
+WINNER_COMPUTER       = "Computer wins!"
+WINNER_NONE           = [ "Wow, this is tense!",
+                          "Whoo! Close one!",
+                          "How frustrating is that?!",
+                          "You're starting to think like the machine...",
+                          "(I know a doctor who wears a tie. Ties are cool.)" ]
 
 def prompt(message)
   puts("=> #{message}")
@@ -30,7 +34,7 @@ end
 
 def action_description(gesture1, gesture2)
   action = WIN_SCENARIOS[gesture1.to_sym][gesture2.to_sym]
-  "#{gesture1.capitalize} #{action} #{gesture2.capitalize}"
+  "#{gesture1.capitalize} #{action} #{gesture2.capitalize}!"
 end
 
 def calculate_winner(player, computer)
@@ -39,7 +43,7 @@ def calculate_winner(player, computer)
   elsif win?(computer, player)
     WINNER_COMPUTER
   else
-    WINNER_NONE
+    WINNER_NONE.sample
   end
 end
 
@@ -96,7 +100,7 @@ def display_final_scores(user, computer)
     prompt("You won the tournament, #{vs_score}! Nice job!")
   else
     vs_score = "#{computer} to #{user}"
-    prompt("The computer won the tournament, #{vs_score}. :(")
+    prompt("The computer won the tournament, #{vs_score}.")
     prompt("Oh no, the machines are taking over!!!")
   end
 end
@@ -117,14 +121,14 @@ loop do
     action = action_description(comp_choice, user_choice)
     computer_score += 1
   else
-    action = "Wow, this is tense"
+    action = "A tie!"
   end
 
   refresh_display(user_score, computer_score)
   prompt("Player   : #{user_choice}")
   prompt("Computer : #{comp_choice}")
   puts
-  prompt("#{action}! #{win_msg}! ")
+  prompt("#{action} #{win_msg}")
   puts
 
   if user_score < 5 && computer_score < 5
