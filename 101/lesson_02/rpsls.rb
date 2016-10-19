@@ -1,17 +1,22 @@
 GAME_WIDTH            = 63
 SEPARATOR             = ("-" * GAME_WIDTH)
 DISPLAY_CHOICES       = %w((R)ock (P)aper (S)cissors (L)izard Spoc(k))
-VALID_PLAYER_CHOICES  = %w(rock r paper p scissors s lizard l spock k)
-WIN_SCENARIOS         = {  rock:     { scissors: "crushes",
-                                       lizard:   "crushes"     },
-                           paper:    { rock:     "covers",
-                                       spock:    "disproves"   },
-                           scissors: { paper:    "cuts",
-                                       lizard:   "decapitates" },
-                           lizard:   { paper:    "eats",
-                                       spock:    "poisons"     },
-                           spock:    { scissors: "smashes",
-                                       rock:     "vaporizes"   } }
+WIN_SCENARIOS         = { rock:     { scissors: "crushes",
+                                      lizard:   "crushes"     },
+                          paper:    { rock:     "covers",
+                                      spock:    "disproves"   },
+                          scissors: { paper:    "cuts",
+                                      lizard:   "decapitates" },
+                          lizard:   { paper:    "eats",
+                                      spock:    "poisons"     },
+                          spock:    { scissors: "smashes",
+                                      rock:     "vaporizes"   } }
+TRANSLATIONS          = { r: "rock",
+                          p: "paper",
+                          s: "scissors",
+                          l: "lizard",
+                          k: "spock" }
+VALID_CHOICES         = TRANSLATIONS.flatten.map(&:to_s)
 WINNER_USER           = "You win!"
 WINNER_COMPUTER       = "Computer wins!"
 WINNER_NONE           = ["Wow, this is tense!",
@@ -48,14 +53,7 @@ def calculate_winner(player, computer)
 end
 
 def translate_choice(value)
-  case value
-  when 'r' then 'rock'
-  when 'p' then 'paper'
-  when 's' then 'scissors'
-  when 'l' then 'lizard'
-  when 'k' then 'spock'
-  else value
-  end
+  TRANSLATIONS[value.to_sym] ? TRANSLATIONS[value.to_sym] : value
 end
 
 def refresh_display(user, computer)
@@ -86,9 +84,9 @@ def user_input
   user_choice = ''
   loop do
     prompt("Choose one: #{DISPLAY_CHOICES.join(', ')}")
-    user_choice = gets.chomp
+    user_choice = gets.chomp.downcase
 
-    break if VALID_PLAYER_CHOICES.include?(user_choice)
+    break if VALID_CHOICES.include?(user_choice)
     prompt("That's not a valid choice...")
   end
   user_choice
@@ -111,7 +109,7 @@ loop do
   refresh_display(user_score, computer_score)
 
   user_choice = translate_choice(user_input)
-  comp_choice = translate_choice(VALID_PLAYER_CHOICES.sample)
+  comp_choice = translate_choice(VALID_CHOICES.sample)
 
   win_msg = calculate_winner(user_choice, comp_choice)
   if win_msg == WINNER_USER
