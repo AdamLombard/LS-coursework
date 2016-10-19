@@ -14,11 +14,11 @@ WIN_SCENARIOS         = {  rock:     { scissors: "crushes",
                                        rock:     "vaporizes"   } }
 WINNER_USER           = "You win!"
 WINNER_COMPUTER       = "Computer wins!"
-WINNER_NONE           = [ "Wow, this is tense!",
-                          "Whoo! Close one!",
-                          "How frustrating is that?!",
-                          "You're starting to think like the machine...",
-                          "(I know a doctor who wears a tie. Ties are cool.)" ]
+WINNER_NONE           = ["Wow, this is tense!",
+                         "Whoo! Close one!",
+                         "How frustrating is that?!",
+                         "You're starting to think like the machine...",
+                         "(I know a doctor who wears a tie. Ties are cool.)"]
 
 def prompt(message)
   puts("=> #{message}")
