@@ -53,7 +53,7 @@ def calculate_winner(player, computer)
 end
 
 def translate_choice(value)
-  TRANSLATIONS[value.to_sym] ? TRANSLATIONS[value.to_sym] : value
+  TRANSLATIONS.fetch(value.to_sym, value)
 end
 
 def refresh_display(user, computer)
