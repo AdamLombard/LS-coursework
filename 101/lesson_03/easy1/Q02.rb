@@ -1,21 +1,15 @@
 # Difference between ! and ? in Ruby
-# "!" can mean "not" or "mutate caller", depending on the context
-# "?" indicates that a method returns a boolean
+# By convention, "!" at the end of a method indicates that the method
+# mutates the caller, and "?" means that the method returns a Boolean.
+# However, in that context they are part of the methods' names, and
+# NOT a part of Ruby sytax. Their meaning depends purely on method
+# implementation.
 
 # what is != and where should you use it?
 # Means "is not equal to", and should be used when comparing values
 
 # put ! before something, like !user_name
-# Means "not value"
-
-# put ! after something, like words.uniq!
-# Means "mutate the caller"
-
-# put ? before something
-# I don't know what this means...
-
-# put ? after something
-# Means this method returns a Boolean
+# Turns an object into the opposite of its Boolean equivalent
 
 # put !! before something, like !!user_name
-# Huh. No clue...
+# Turns an object into its Boolean equivalent
