@@ -135,6 +135,28 @@ def convert_first_player(first_player)
   first_player == 'P' ? PLAYER_USER : PLAYER_COMP
 end
 
+def continue?
+  yes_no = ''
+  prompt("Continue? (Y/N)")
+  loop do
+    yes_no = gets.chomp.downcase
+    break if yes_no == 'y' || yes_no == 'n'
+    prompt("Please reply with 'Y' or 'N'...")
+  end
+  yes_no == 'y' ? TRUE : FALSE
+end
+
+def display_final_scores(user, computer)
+  if user > computer
+    vs_score = "#{user} to #{computer}"
+    prompt("You won the tournament, #{vs_score}! Nice job!")
+  else
+    vs_score = "#{computer} to #{user}"
+    prompt("The computer won the tournament, #{vs_score}.")
+    prompt("Oh no, the machines are taking over!!!")
+  end
+end
+
 
 user_score = 0
 comp_score = 0
@@ -183,9 +205,12 @@ loop do
     prompt WINNER_NONE
   end
 
-  prompt "Play again? (Y/N)"
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+  if user_score < 5 && comp_score < 5
+    break unless continue?
+  else
+    display_final_scores(user_score, comp_score)
+    break
+  end
 end
 
 prompt "Thanks for playing! Goodbye!"
