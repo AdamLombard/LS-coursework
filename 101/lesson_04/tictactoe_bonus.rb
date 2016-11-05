@@ -11,12 +11,12 @@ GRID_CROSS_BARS = GRID_LINE_EMPTY + "\n" +
 WINNING_LINES   = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
                   [[1, 5, 9], [3, 5, 7]]              # diagonals
-PLAYER_USER     = "Player".freeze
-PLAYER_COMP     = "Computer".freeze
-PLAYER_NONE     = "None".freeze
-PLAYER_FIRST    = PLAYER_NONE
-WINNER_USER     = "#{PLAYER_USER} wins!".freeze
-WINNER_COMP     = "#{PLAYER_COMP} wins!".freeze
+PLAYER          = "Player".freeze
+COMPUTER        = "Computer".freeze
+NONE            = "None".freeze
+WHO_GOES_FIRST  = NONE
+WINNER_PLAYER   = "#{PLAYER} wins!".freeze
+WINNER_COMPUTER = "#{COMPUTER} wins!".freeze
 WINNER_NONE     = "It's a tie!".freeze
 SCORE_LIMIT     = 5
 ALLOWED_FIRSTS  = ['P', 'PLAYER', 'C', 'COMPUTER', 'R', 'RANDOM'].freeze
@@ -77,11 +77,11 @@ def joinor(arr, delim=',', word_before_last='or')
 end
 
 def alternate_player(current_player)
-  current_player == PLAYER_USER ? PLAYER_COMP : PLAYER_USER
+  current_player == PLAYER ? COMPUTER : PLAYER
 end
 
 def place_piece!(board, current_player)
-  if current_player == PLAYER_USER
+  if current_player == PLAYER
     player_places_piece!(board)
   else
     computer_places_piece!(board)
@@ -102,16 +102,18 @@ end
 def computer_places_piece!(board)
   square = nil
 
-  WINNING_LINES.each do |line|
-    square = find_at_risk_square(line, board, MARKER_COMPUTER)
-    square = find_at_risk_square(line, board, MARKER_PLAYER) if !square
+  WINNING_LINES.each do |line_for_the_win|
+    square = find_at_risk_square(line_for_the_win, board, MARKER_COMPUTER)
     break if square
   end
 
-  if !square
-    square = CENTER_SPACE if board[CENTER_SPACE] == MARKER_EMPTY
-    square = empty_squares(board).sample if !square
+  WINNING_LINES.each do |line_for_a_loss|
+    break if square
+    square = find_at_risk_square(line_for_a_loss, board, MARKER_PLAYER)
   end
+
+  square = CENTER_SPACE if !square && (board[CENTER_SPACE] == MARKER_EMPTY)
+  square = empty_squares(board).sample if !square
 
   board[square] = MARKER_COMPUTER
 end
@@ -127,9 +129,9 @@ end
 def detect_winner(board)
   WINNING_LINES.each do |line|
     if board.values_at(*line).count(MARKER_PLAYER) == 3
-      return WINNER_USER
+      return WINNER_PLAYER
     elsif board.values_at(*line).count(MARKER_COMPUTER) == 3
-      return WINNER_COMP
+      return WINNER_COMPUTER
     end
   end
   nil
@@ -141,12 +143,7 @@ def find_at_risk_square(line, board, marker)
   end
 end
 
-def choose_player
-  clear_screen
-  refresh_display(initialze_board, 0, 0)
-
-  prompt "Welcome to Tic-Tac-Toe!"
-  prompt "Who goes first? (P)layer, (C)omputer, or (R)andom?"
+def choose_first_player
   first_player = ''
   loop do
     first_player = gets.chomp.upcase
@@ -155,11 +152,7 @@ def choose_player
   end
   first_player = ['P', 'C'].sample if ['R', 'RANDOM'].include?(first_player)
 
-  convert_first_player(first_player)
-end
-
-def convert_first_player(first_player)
-  ['P', 'PLAYER'].include?(first_player) ? PLAYER_USER : PLAYER_COMP
+  ['P', 'PLAYER'].include?(first_player) ? PLAYER : COMPUTER
 end
 
 def continue?
@@ -185,12 +178,19 @@ def display_final_scores(user, computer)
   end
 end
 
+def welcome_user
+  prompt "Welcome to Tic-Tac-Toe!"
+  prompt "Who goes first? (P)layer, (C)omputer, or (R)andom?"
+end
+
 user_score = 0
 comp_score = 0
-current_player = if PLAYER_FIRST == PLAYER_NONE
-                   choose_player
+current_player = if WHO_GOES_FIRST == NONE
+                   refresh_display(initialze_board, 0, 0)
+                   welcome_user
+                   choose_first_player
                  else
-                   PLAYER_FIRST
+                   WHO_GOES_FIRST
                  end
 loop do
   board = initialze_board
@@ -205,7 +205,7 @@ loop do
   refresh_display(board, user_score, comp_score)
 
   if someone_won?(board)
-    detect_winner(board) == WINNER_USER ? user_score += 1 : comp_score += 1
+    detect_winner(board) == WINNER_PLAYER ? user_score += 1 : comp_score += 1
     refresh_display(board, user_score, comp_score)
     prompt detect_winner(board)
   else
