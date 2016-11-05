@@ -1,44 +1,62 @@
-GAME_WIDTH      = 48
+GAME_WIDTH      = 52
 SEPARATOR       = ("-" * GAME_WIDTH)
 MARKER_PLAYER   = 'X'.freeze
 MARKER_COMPUTER = 'O'.freeze
 MARKER_EMPTY    = ' '.freeze
-GRID_LINE_FULL  = "-----+-----+-----".freeze
-GRID_LINE_EMPTY = "     |     |".freeze
+GRID_LINE_FULL  = "-----+-----+-----".freeze.center(GAME_WIDTH)
+GRID_LINE_EMPTY = "     |     |     ".freeze.center(GAME_WIDTH)
+GRID_CROSS_BARS = GRID_LINE_EMPTY + "\n" +
+                  GRID_LINE_FULL + "\n" +
+                  GRID_LINE_EMPTY
 WINNING_LINES   = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
                   [[1, 5, 9], [3, 5, 7]]              # diagonals
 PLAYER_USER     = "Player".freeze
 PLAYER_COMP     = "Computer".freeze
 PLAYER_NONE     = "None".freeze
-PLAYER_FIRST    = PLAYER_COMP
+PLAYER_FIRST    = PLAYER_NONE
 WINNER_USER     = "#{PLAYER_USER} wins!".freeze
 WINNER_COMP     = "#{PLAYER_COMP} wins!".freeze
 WINNER_NONE     = "It's a tie!".freeze
+SCORE_LIMIT     = 5
 
 def prompt(msg)
   puts "=> " + msg
 end
 
-def display_board(brd, user_score, comp_score)
-  system 'clear'
+def clear_screen
+  system('clear') || system('cls')
+end
 
+def display_score_banner(user_score, comp_score)
+  user_score  = "Player : #{user_score}"
+  comp_score  = "Computer : #{comp_score}"
+  limit_msg   = "First to #{SCORE_LIMIT} wins!"
+  zone_width  = (GAME_WIDTH / 3)
   puts SEPARATOR
-  puts "Player (#{MARKER_PLAYER}): #{user_score}" \
-       "Computer (#{MARKER_COMPUTER}): #{comp_score}"
+  puts user_score.ljust(zone_width) +
+       limit_msg.center(zone_width) +
+       comp_score.rjust(zone_width)
   puts SEPARATOR
+end
+
+# rubocop:disable Metrics/AbcSize
+def display_grid(brd)
   puts GRID_LINE_EMPTY
-  puts "  #{brd[1]}  |  #{brd[2]}  |  #{brd[3]}"
-  puts GRID_LINE_EMPTY
-  puts GRID_LINE_FULL
-  puts GRID_LINE_EMPTY
-  puts "  #{brd[4]}  |  #{brd[5]}  |  #{brd[6]}"
-  puts GRID_LINE_EMPTY
-  puts GRID_LINE_FULL
-  puts GRID_LINE_EMPTY
-  puts "  #{brd[7]}  |  #{brd[8]}  |  #{brd[9]}"
+  puts "  #{brd[1]}  |  #{brd[2]}  |  #{brd[3]}  ".center(GAME_WIDTH)
+  puts GRID_CROSS_BARS
+  puts "  #{brd[4]}  |  #{brd[5]}  |  #{brd[6]}  ".center(GAME_WIDTH)
+  puts GRID_CROSS_BARS
+  puts "  #{brd[7]}  |  #{brd[8]}  |  #{brd[9]}  ".center(GAME_WIDTH)
   puts GRID_LINE_EMPTY
   puts
+end
+# rubocop:enable Metrics/AbcSize
+
+def refresh_display(brd, user_score, comp_score)
+  clear_screen
+  display_score_banner(user_score, comp_score)
+  display_grid(brd)
 end
 
 def initialze_board
@@ -48,12 +66,24 @@ def initialze_board
 end
 
 def empty_squares(board)
-  board.keys.select { |k| board[k] == MARKER_EMPTY}
+  board.keys.select { |k| board[k] == MARKER_EMPTY }
 end
 
 def joinor(arr, delim=',', word_before_last='or')
   arr[-1] = "#{word_before_last} #{arr.last}" if arr.size > 1
   arr.size == 2 ? arr.join(' ') : arr.join("#{delim} ")
+end
+
+def alternate_player(current_player)
+  current_player == PLAYER_USER ? PLAYER_COMP : PLAYER_USER
+end
+
+def place_piece!(board, current_player)
+  if current_player == PLAYER_USER
+    player_places_piece!(board)
+  else
+    computer_places_piece!(board)
+  end
 end
 
 def player_places_piece!(board)
@@ -71,14 +101,8 @@ def computer_places_piece!(board)
   square = nil
   WINNING_LINES.each do |line|
     square = find_at_risk_square(line, board, MARKER_COMPUTER)
+    square = find_at_risk_square(line, board, MARKER_PLAYER) if !square
     break if square
-  end
-
-  if !square
-    WINNING_LINES.each do |line|
-      square = find_at_risk_square(line, board, MARKER_PLAYER)
-      break if square
-    end
   end
 
   if !square
@@ -87,9 +111,7 @@ def computer_places_piece!(board)
     end
   end
 
-  if !square
-    square = empty_squares(board).sample
-  end
+  square = empty_squares(board).sample if !square
 
   board[square] = MARKER_COMPUTER
 end
@@ -115,19 +137,21 @@ end
 
 def find_at_risk_square(line, board, marker)
   if board.values_at(*line).count(marker) == 2
-    board.select{ |k,v| line.include?(k) && v == MARKER_EMPTY }.keys.first
-  else
-    nil
+    board.select { |k, v| line.include?(k) && v == MARKER_EMPTY }.keys.first
   end
 end
 
 def choose_player
-  prompt "Who goes first? (P)layer or (C)omputer?"
+  clear_screen
+  prompt "Welcome to Tic-Tac-Toe!"
+  prompt "Who goes first? (P)layer, (C)omputer, or (R)andom?"
+  first_player = ''
   loop do
-    first_player = gets.chomp
-    break if first_player == "P" || first_player == "C"
-    prompt "Please enter (P) or (C)..."
+    first_player = gets.chomp.upcase
+    break if ['P', 'C', 'R'].include?(first_player)
+    prompt "Please enter (P), (C), or (R)..."
   end
+  first_player = ['P', 'C'].sample if first_player == 'R'
   convert_first_player(first_player)
 end
 
@@ -150,6 +174,7 @@ def display_final_scores(user, computer)
   if user > computer
     vs_score = "#{user} to #{computer}"
     prompt("You won the tournament, #{vs_score}! Nice job!")
+    prompt("Congrats! You're smarter than a programmer!")
   else
     vs_score = "#{computer} to #{user}"
     prompt("The computer won the tournament, #{vs_score}.")
@@ -157,60 +182,37 @@ def display_final_scores(user, computer)
   end
 end
 
-
 user_score = 0
 comp_score = 0
-first_player = PLAYER_FIRST
-first_player = choose_player if first_player == PLAYER_NONE
+current_player = if PLAYER_FIRST == PLAYER_NONE
+                   choose_player
+                 else
+                   PLAYER_FIRST
+                 end
 loop do
   board = initialze_board
 
   loop do
-    display_board(board, user_score, comp_score)
-
-    case first_player
-    when PLAYER_USER
-      player_places_piece!(board)
-      display_board(board, user_score, comp_score)
-      break if someone_won?(board) || board_full?(board)
-
-      computer_places_piece!(board)
-      display_board(board, user_score, comp_score)
-      break if someone_won?(board) || board_full?(board)
-    when PLAYER_COMP
-      computer_places_piece!(board)
-      display_board(board, user_score, comp_score)
-      break if someone_won?(board) || board_full?(board)
-
-      player_places_piece!(board)
-      display_board(board, user_score, comp_score)
-      break if someone_won?(board) || board_full?(board)
-    end
+    refresh_display(board, user_score, comp_score)
+    place_piece!(board, current_player)
+    current_player = alternate_player(current_player)
+    break if someone_won?(board) || board_full?(board)
   end
 
-  display_board(board, user_score, comp_score)
+  refresh_display(board, user_score, comp_score)
 
   if someone_won?(board)
-    case detect_winner(board)
-    when WINNER_USER
-      user_score += 1
-      display_board(board, user_score, comp_score)
-      prompt WINNER_USER
-    when WINNER_COMP
-      comp_score += 1
-      display_board(board, user_score, comp_score)
-      prompt WINNER_COMP
-    end
+    detect_winner(board) == WINNER_USER ? user_score += 1 : comp_score += 1
+    refresh_display(board, user_score, comp_score)
+    prompt detect_winner(board)
   else
     prompt WINNER_NONE
   end
 
-  if user_score < 5 && comp_score < 5
+  if (user_score < SCORE_LIMIT) && (comp_score < SCORE_LIMIT)
     break unless continue?
   else
     display_final_scores(user_score, comp_score)
     break
   end
 end
-
-prompt "Thanks for playing! Goodbye!"
