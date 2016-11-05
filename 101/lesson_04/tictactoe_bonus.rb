@@ -1,5 +1,3 @@
-require 'pry'
-
 GAME_WIDTH      = 52
 SEPARATOR       = ("-" * GAME_WIDTH)
 MARKER_PLAYER   = 'X'.freeze
