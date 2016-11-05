@@ -1,3 +1,5 @@
+require 'pry'
+
 GAME_WIDTH      = 52
 SEPARATOR       = ("-" * GAME_WIDTH)
 MARKER_PLAYER   = 'X'.freeze
@@ -19,6 +21,8 @@ WINNER_USER     = "#{PLAYER_USER} wins!".freeze
 WINNER_COMP     = "#{PLAYER_COMP} wins!".freeze
 WINNER_NONE     = "It's a tie!".freeze
 SCORE_LIMIT     = 5
+ALLOWED_FIRSTS  = ['P', 'PLAYER', 'C', 'COMPUTER', 'R', 'RANDOM'].freeze
+CENTER_SPACE    = 5
 
 def prompt(msg)
   puts "=> " + msg
@@ -99,6 +103,7 @@ end
 
 def computer_places_piece!(board)
   square = nil
+
   WINNING_LINES.each do |line|
     square = find_at_risk_square(line, board, MARKER_COMPUTER)
     square = find_at_risk_square(line, board, MARKER_PLAYER) if !square
@@ -106,12 +111,9 @@ def computer_places_piece!(board)
   end
 
   if !square
-    if board[5] == MARKER_EMPTY
-      square = 5
-    end
+    square = CENTER_SPACE if board[CENTER_SPACE] == MARKER_EMPTY
+    square = empty_squares(board).sample if !square
   end
-
-  square = empty_squares(board).sample if !square
 
   board[square] = MARKER_COMPUTER
 end
@@ -143,20 +145,23 @@ end
 
 def choose_player
   clear_screen
+  refresh_display(initialze_board, 0, 0)
+
   prompt "Welcome to Tic-Tac-Toe!"
   prompt "Who goes first? (P)layer, (C)omputer, or (R)andom?"
   first_player = ''
   loop do
     first_player = gets.chomp.upcase
-    break if ['P', 'C', 'R'].include?(first_player)
+    break if ALLOWED_FIRSTS.include?(first_player)
     prompt "Please enter (P), (C), or (R)..."
   end
-  first_player = ['P', 'C'].sample if first_player == 'R'
+  first_player = ['P', 'C'].sample if ['R', 'RANDOM'].include?(first_player)
+
   convert_first_player(first_player)
 end
 
 def convert_first_player(first_player)
-  first_player == 'P' ? PLAYER_USER : PLAYER_COMP
+  ['P', 'PLAYER'].include?(first_player) ? PLAYER_USER : PLAYER_COMP
 end
 
 def continue?
