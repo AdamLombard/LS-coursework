@@ -14,3 +14,8 @@ end
 def uuid
   Array.new(32) { rand(16).to_s(16) }.join.unpack('a8a4a4a4a*').join('-')
 end
+
+# Pete (the TA) had this suggestion, for a on-liner without using 'unpack'...
+def uuid
+  [8, 4, 4, 4, 12].map { |n| Array.new(n) { rand(16).to_s(16) }.join }.join('-')
+end
