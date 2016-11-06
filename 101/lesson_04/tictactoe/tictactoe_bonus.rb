@@ -1,3 +1,5 @@
+require 'pry'
+
 GAME_WIDTH            = 51
 SEPARATOR             = ("-" * GAME_WIDTH)
 MARKER_USER           = 'X'.freeze
@@ -100,19 +102,9 @@ def user_places_piece!(board)
 end
 
 def computer_places_piece!(board)
-  square = nil
-
-  WINNING_LINES.each do |line_for_the_win|
-    square = find_at_risk_square(line_for_the_win, board, MARKER_COMPUTER)
-    break if square
-  end
-
-  WINNING_LINES.each do |line_for_a_loss|
-    break if square
-    square = find_at_risk_square(line_for_a_loss, board, MARKER_USER)
-  end
-
-  square = CENTER_SPACE if !square && (board[CENTER_SPACE] == MARKER_EMPTY)
+  square = find_square_to_win(board)
+  square = find_square_to_block(board) if !square
+  square = try_center_square(board) if !square
   square = empty_squares(board).sample if !square
 
   board[square] = MARKER_COMPUTER
@@ -137,10 +129,26 @@ def detect_winner(board)
   nil
 end
 
-def find_at_risk_square(line, board, marker)
-  if board.values_at(*line).count(marker) == 2
-    board.select { |k, v| line.include?(k) && v == MARKER_EMPTY }.keys.first
+def find_at_risk_square(board, marker_type)
+  WINNING_LINES.each do |line|
+    next unless board.values_at(*line).count(marker_type) == 2
+    at_risk = board.select { |k, v| line.include?(k) && v == MARKER_EMPTY }
+    at_risk = at_risk.keys.first
+    return at_risk if at_risk
   end
+  nil
+end
+
+def find_square_to_win(board)
+  find_at_risk_square(board, MARKER_COMPUTER)
+end
+
+def find_square_to_block(board)
+  find_at_risk_square(board, MARKER_USER)
+end
+
+def try_center_square(board)
+  board[CENTER_SPACE] == MARKER_EMPTY ? CENTER_SPACE : nil
 end
 
 def choose_first_player
