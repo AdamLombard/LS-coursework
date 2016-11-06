@@ -1,26 +1,26 @@
-GAME_WIDTH      = 52
-SEPARATOR       = ("-" * GAME_WIDTH)
-MARKER_PLAYER   = 'X'.freeze
-MARKER_COMPUTER = 'O'.freeze
-MARKER_EMPTY    = ' '.freeze
-GRID_LINE_FULL  = "-----+-----+-----".freeze.center(GAME_WIDTH)
-GRID_LINE_EMPTY = "     |     |     ".freeze.center(GAME_WIDTH)
-GRID_CROSS_BARS = GRID_LINE_EMPTY + "\n" +
-                  GRID_LINE_FULL + "\n" +
-                  GRID_LINE_EMPTY
-WINNING_LINES   = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
-                  [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
-                  [[1, 5, 9], [3, 5, 7]]              # diagonals
-PLAYER          = "Player".freeze
-COMPUTER        = "Computer".freeze
-NONE            = "None".freeze
-WHO_GOES_FIRST  = NONE
-WINNER_PLAYER   = "#{PLAYER} wins!".freeze
-WINNER_COMPUTER = "#{COMPUTER} wins!".freeze
-WINNER_NONE     = "It's a tie!".freeze
-SCORE_LIMIT     = 5
-ALLOWED_FIRSTS  = ['P', 'PLAYER', 'C', 'COMPUTER', 'R', 'RANDOM'].freeze
-CENTER_SPACE    = 5
+GAME_WIDTH            = 51
+SEPARATOR             = ("-" * GAME_WIDTH)
+MARKER_USER           = 'X'.freeze
+MARKER_COMPUTER       = 'O'.freeze
+MARKER_EMPTY          = ' '.freeze
+GRID_LINE_FULL        = "-----+-----+-----".freeze.center(GAME_WIDTH)
+GRID_LINE_EMPTY       = "     |     |     ".freeze.center(GAME_WIDTH)
+GRID_CROSS_BARS       = GRID_LINE_EMPTY + "\n" +
+                        GRID_LINE_FULL + "\n" +
+                        GRID_LINE_EMPTY
+WINNING_LINES         = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
+                        [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
+                        [[1, 5, 9], [3, 5, 7]]              # diagonals
+USER                  = "You".freeze
+COMPUTER              = "Computer".freeze
+NONE                  = "None".freeze
+WHO_GOES_FIRST        = NONE
+WINNER_USER           = "#{USER} win!".freeze
+WINNER_COMPUTER       = "#{COMPUTER} wins!".freeze
+WINNER_NONE           = "It's a tie!".freeze
+SCORE_LIMIT           = 5
+ALLOWED_RESPONSES     = ['Y', 'YES', 'N', 'NO', 'R', 'RANDOM'].freeze
+CENTER_SPACE          = 5
 
 def prompt(msg)
   puts "=> " + msg
@@ -31,8 +31,8 @@ def clear_screen
 end
 
 def display_score_banner(user_score, comp_score)
-  user_score  = "Player : #{user_score}"
-  comp_score  = "Computer : #{comp_score}"
+  user_score  = "#{USER} : #{user_score}"
+  comp_score  = "#{COMPUTER} : #{comp_score}"
   limit_msg   = "First to #{SCORE_LIMIT} wins!"
   zone_width  = (GAME_WIDTH / 3)
   puts SEPARATOR
@@ -77,18 +77,18 @@ def joinor(arr, delim=',', word_before_last='or')
 end
 
 def alternate_player(current_player)
-  current_player == PLAYER ? COMPUTER : PLAYER
+  current_player == USER ? COMPUTER : USER
 end
 
 def place_piece!(board, current_player)
-  if current_player == PLAYER
-    player_places_piece!(board)
+  if current_player == USER
+    user_places_piece!(board)
   else
     computer_places_piece!(board)
   end
 end
 
-def player_places_piece!(board)
+def user_places_piece!(board)
   square = ''
   loop do
     prompt "Choose a square (#{joinor(empty_squares(board))})"
@@ -96,7 +96,7 @@ def player_places_piece!(board)
     break if empty_squares(board).include?(square)
     prompt "Sorry, that's not a valid choice"
   end
-  board[square] = MARKER_PLAYER
+  board[square] = MARKER_USER
 end
 
 def computer_places_piece!(board)
@@ -109,7 +109,7 @@ def computer_places_piece!(board)
 
   WINNING_LINES.each do |line_for_a_loss|
     break if square
-    square = find_at_risk_square(line_for_a_loss, board, MARKER_PLAYER)
+    square = find_at_risk_square(line_for_a_loss, board, MARKER_USER)
   end
 
   square = CENTER_SPACE if !square && (board[CENTER_SPACE] == MARKER_EMPTY)
@@ -128,8 +128,8 @@ end
 
 def detect_winner(board)
   WINNING_LINES.each do |line|
-    if board.values_at(*line).count(MARKER_PLAYER) == 3
-      return WINNER_PLAYER
+    if board.values_at(*line).count(MARKER_USER) == 3
+      return WINNER_USER
     elsif board.values_at(*line).count(MARKER_COMPUTER) == 3
       return WINNER_COMPUTER
     end
@@ -144,15 +144,17 @@ def find_at_risk_square(line, board, marker)
 end
 
 def choose_first_player
-  first_player = ''
-  loop do
-    first_player = gets.chomp.upcase
-    break if ALLOWED_FIRSTS.include?(first_player)
-    prompt "Please enter (P), (C), or (R)..."
-  end
-  first_player = ['P', 'C'].sample if ['R', 'RANDOM'].include?(first_player)
+  prompt "Would you like to go first? (Y)es, (N)o, or (R)andom?"
 
-  ['P', 'PLAYER'].include?(first_player) ? PLAYER : COMPUTER
+  user_response = ''
+  loop do
+    user_response = gets.chomp.upcase
+    break if ALLOWED_RESPONSES.include?(user_response)
+    prompt "Please enter (Y), (N), or (R)..."
+  end
+  user_response = ['Y', 'N'].sample if ['R', 'RANDOM'].include?(user_response)
+
+  ['Y', 'YES'].include?(user_response) ? USER : COMPUTER
 end
 
 def continue?
@@ -166,28 +168,23 @@ def continue?
   yes_no == 'y' ? TRUE : FALSE
 end
 
-def display_final_scores(user, computer)
-  if user > computer
-    vs_score = "#{user} to #{computer}"
+def display_final_scores(user_score, comp_score)
+  if user_score > comp_score
+    vs_score = "#{user_score} to #{comp_score}"
     prompt("You won the tournament, #{vs_score}! Nice job!")
     prompt("Congrats! You're smarter than a programmer!")
   else
-    vs_score = "#{computer} to #{user}"
+    vs_score = "#{comp_score} to #{user_score}"
     prompt("The computer won the tournament, #{vs_score}.")
     prompt("Oh no, the machines are taking over!!!")
   end
-end
-
-def welcome_user
-  prompt "Welcome to Tic-Tac-Toe!"
-  prompt "Who goes first? (P)layer, (C)omputer, or (R)andom?"
 end
 
 user_score = 0
 comp_score = 0
 current_player = if WHO_GOES_FIRST == NONE
                    refresh_display(initialze_board, 0, 0)
-                   welcome_user
+                   prompt "Welcome to Tic-Tac-Toe!"
                    choose_first_player
                  else
                    WHO_GOES_FIRST
@@ -205,7 +202,7 @@ loop do
   refresh_display(board, user_score, comp_score)
 
   if someone_won?(board)
-    detect_winner(board) == WINNER_PLAYER ? user_score += 1 : comp_score += 1
+    detect_winner(board) == WINNER_USER ? user_score += 1 : comp_score += 1
     refresh_display(board, user_score, comp_score)
     prompt detect_winner(board)
   else
