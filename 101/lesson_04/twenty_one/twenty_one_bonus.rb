@@ -109,7 +109,7 @@ def display_result(dealer_cards, player_cards)
   end
 end
 
-def calculate_cash_amounts(cash_amounts, dealer_cards, player_cards)
+def adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
   case detect_result(dealer_cards, player_cards)
   when :player_busted, :dealer
     cash_amounts[:player] -= ROUND_WAGER
@@ -196,7 +196,7 @@ loop do
   end
 
   if busted?(player_cards)
-    calculate_cash_amounts(cash_amounts, dealer_cards, player_cards)
+    adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
     display_table(cash_amounts, dealer_cards, player_cards)
     display_result(dealer_cards, player_cards)
     break if game_over?(cash_amounts)
@@ -217,7 +217,7 @@ loop do
   end
 
   if busted?(dealer_cards)
-    calculate_cash_amounts(cash_amounts, dealer_cards, player_cards)
+    adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
     display_table(cash_amounts, dealer_cards, player_cards)
     display_result(dealer_cards, player_cards)
     break if game_over?(cash_amounts)
@@ -227,7 +227,7 @@ loop do
     sleep(2)
   end
 
-  calculate_cash_amounts(cash_amounts, dealer_cards, player_cards)
+  adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
   display_table(cash_amounts, dealer_cards, player_cards)
   display_result(dealer_cards, player_cards)
   break if game_over?(cash_amounts)
