@@ -165,6 +165,12 @@ def display_table(cash_amounts, dealer_cards, player_cards)
   puts SEPARATOR
 end
 
+def display_end_of_round(cash_amounts, dealer_cards, player_cards)
+  adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
+  display_table(cash_amounts, dealer_cards, player_cards)
+  display_result(dealer_cards, player_cards)
+end
+
 def game_over?(cash_amounts)
   cash_amounts.any? { |k,v| v == 0 }
 end
@@ -196,9 +202,7 @@ loop do
   end
 
   if busted?(player_cards)
-    adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
-    display_table(cash_amounts, dealer_cards, player_cards)
-    display_result(dealer_cards, player_cards)
+    display_end_of_round(cash_amounts, dealer_cards, player_cards)
     break if game_over?(cash_amounts)
     play_again? ? next : break
   else
@@ -206,7 +210,6 @@ loop do
   end
 
   prompt "Dealer turn..."
-
   loop do
     break if busted?(dealer_cards) || total(dealer_cards) >= DEALER_LIMIT
 
@@ -217,9 +220,7 @@ loop do
   end
 
   if busted?(dealer_cards)
-    adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
-    display_table(cash_amounts, dealer_cards, player_cards)
-    display_result(dealer_cards, player_cards)
+    display_end_of_round(cash_amounts, dealer_cards, player_cards)
     break if game_over?(cash_amounts)
     play_again? ? next : break
   else
@@ -227,11 +228,8 @@ loop do
     sleep(2)
   end
 
-  adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
-  display_table(cash_amounts, dealer_cards, player_cards)
-  display_result(dealer_cards, player_cards)
+  display_end_of_round(cash_amounts, dealer_cards, player_cards)
   break if game_over?(cash_amounts)
-
   break unless play_again?
 end
 
