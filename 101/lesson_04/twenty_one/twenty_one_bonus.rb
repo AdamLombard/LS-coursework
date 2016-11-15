@@ -118,7 +118,6 @@ def calculate_cash_amounts(cash_amounts, dealer_cards, player_cards)
     cash_amounts[:player] += ROUND_WAGER
     cash_amounts[:dealer] -= ROUND_WAGER
   end
-  cash_amounts
 end
 
 def play_again?
