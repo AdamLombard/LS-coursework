@@ -9,14 +9,14 @@ NUM_CARDS    = %w(2 3 4 5 6 7 8 9).freeze
 FACE_CARDS   = %w(J Q K).freeze
 ACE          = 'A'.freeze
 VALUES       = (NUM_CARDS + FACE_CARDS + [ACE]).freeze
-SPADE        = "\u2660"
-HEART        = "\u2661"
-DIAMOND      = "\u2662"
-CLUB         = "\u2663"
+SPADE        = "\u2660".freeze
+HEART        = "\u2661".freeze
+DIAMOND      = "\u2662".freeze
+CLUB         = "\u2663".freeze
 SUITS        = [SPADE, HEART, DIAMOND, CLUB].freeze
 DECK         = SUITS.product(VALUES).freeze
-DEALER       = "dealer"
-PLAYER       = "you"
+DEALER       = "dealer".freeze
+PLAYER       = "you".freeze
 DEALER_START_CASH = 250
 PLAYER_START_CASH = 100
 
@@ -41,7 +41,7 @@ def display_score_banner(cash_amounts)
 
   puts SEPARATOR
   puts player_score.ljust(ZONE_WIDTH) +
-       limit_msg.center(ZONE_WIDTH*2) +
+       limit_msg.center(ZONE_WIDTH * 2) +
        dealer_score.rjust(ZONE_WIDTH)
   puts SEPARATOR
 end
@@ -153,7 +153,7 @@ def display_cards(cards, owner)
   puts SEPARATOR_THICK
   puts owner.upcase.center(GAME_WIDTH)
   puts SEPARATOR_THICK
-  puts "#{cards}".center(GAME_WIDTH)
+  puts cards.to_s.center(GAME_WIDTH)
   puts "Total : #{total(cards)} pts".center(GAME_WIDTH)
 end
 
@@ -172,7 +172,7 @@ def display_end_of_round(cash_amounts, dealer_cards, player_cards)
 end
 
 def game_over?(cash_amounts)
-  cash_amounts.any? { |k,v| v == 0 }
+  cash_amounts.any? { |_key, value| value.zero? }
 end
 
 cash_amounts = { player: PLAYER_START_CASH, dealer: DEALER_START_CASH }
