@@ -19,7 +19,7 @@ SUITS        = [SPADE, HEART, DIAMOND, CLUB].freeze
 DECK         = SUITS.product(VALUES).freeze
 DEALER       = "dealer".freeze
 PLAYER       = "you".freeze
-DEALER_START_CASH = 250
+DEALER_START_CASH = 200
 PLAYER_START_CASH = 100
 
 def prompt(msg)
@@ -31,7 +31,6 @@ def clear_screen
 end
 
 def prompt_to_continue
-  puts SEPARATOR
   prompt "Press 'Enter' to continue"
   gets
 end
@@ -129,26 +128,22 @@ def play_again?
   answer.downcase.start_with?('y')
 end
 
-def welcome_player(cash_amounts)
-  clear_screen
-  display_score_banner(cash_amounts)
-  puts <<-WELCOME_AND_RULES
-  Welcome to "#{SCORE_LIMIT}"!
-  How to play:
-  - The goal is to score closest to #{SCORE_LIMIT}, without going over
+def display_rules
+  puts <<-RULES
+  How to play '#{SCORE_LIMIT}'!
+  - Win a round by scoring closest to #{SCORE_LIMIT}, without going over
     ~ A player that goes over #{SCORE_LIMIT} "busts" & the other player wins
-  - You and the Dealer will both receive two cards
+  - You and the Dealer will each receive two cards
     ~ You can see both of your cards, but only one of the Dealer's
     ~ Number cards are worth their numeric values
     ~ Face cards are worth 10
     ~ Aces are worth 11 or 1, depending on their effect on the total score
-  - Players will choose to "hit" (get another card) or "stay" (end their turn)
+  - You will choose to "hit" (get another card) or "stay" (end your turn)
     ~ The Dealer will "stay" after reaching or passing #{DEALER_LIMIT} points
   - Each round is worth $#{ROUND_WAGER}
-    ~ When a player reaches $0 they lose the game, and the other player wins
-  - Take the Dealer's money!
-  WELCOME_AND_RULES
-  prompt_to_continue
+    ~ When a player reaches $0, the other player wins the game
+  - Take the Dealer's money to win!
+  RULES
 end
 
 def display_cards(card_values, owner, turn)
@@ -198,8 +193,37 @@ def game_over?(cash_amounts)
   cash_amounts.any? { |_key, value| value.zero? }
 end
 
+def player_turn(cash_amounts, dealer_cards, player_cards, turn, deck)
+  display_table(cash_amounts, dealer_cards, player_cards, turn)
+  action = nil
+  loop do
+    prompt "Would you like to (h)it or (s)tay?"
+    action = gets.chomp.downcase
+    break if ['h', 's', 'hit', 'stay'].include?(action)
+    prompt "Please enter 'h' or 's'."
+  end
+
+  if ['h', 'hit'].include?(action)
+    player_cards << deck.pop
+  end
+  display_table(cash_amounts, dealer_cards, player_cards, turn)
+  action
+end
+
+def dealer_turn(cash_amounts, dealer_cards, player_cards, turn, deck)
+  prompt "Dealer hits! ..."
+  prompt_to_continue
+  dealer_cards << deck.pop
+  display_table(cash_amounts, dealer_cards, player_cards, turn)
+end
+
 cash_amounts = { player: PLAYER_START_CASH, dealer: DEALER_START_CASH }
-welcome_player(cash_amounts)
+
+clear_screen
+display_score_banner(cash_amounts)
+display_rules
+prompt SEPARATOR
+prompt_to_continue
 loop do
   deck         = shuffle_deck
   player_cards = deal_two_cards(deck)
@@ -207,21 +231,8 @@ loop do
 
   turn = PLAYER
   loop do
-    display_table(cash_amounts, dealer_cards, player_cards, turn)
-    player_turn = nil
-    loop do
-      prompt "Would you like to (h)it or (s)tay?"
-      player_turn = gets.chomp.downcase
-      break if ['h', 's'].include?(player_turn)
-      prompt "Sorry, must enter 'h' or 's'."
-    end
-
-    if player_turn == 'h'
-      player_cards << deck.pop
-      display_table(cash_amounts, dealer_cards, player_cards, turn)
-    end
-
-    break if player_turn == 's' || busted?(player_cards)
+    action = player_turn(cash_amounts, dealer_cards, player_cards, turn, deck)
+    break if ['s', 'stay'].include?(action) || busted?(player_cards)
   end
 
   turn = DEALER
@@ -231,15 +242,12 @@ loop do
     play_again? ? next : break
   else
     prompt "You stayed at #{total(player_cards)}"
+    prompt_to_continue
   end
 
   loop do
     break if busted?(dealer_cards) || total(dealer_cards) >= DEALER_LIMIT
-
-    prompt "Dealer hits! ..."
-    sleep(2)
-    dealer_cards << deck.pop
-    display_table(cash_amounts, dealer_cards, player_cards, turn)
+    dealer_turn(cash_amounts, dealer_cards, player_cards, turn, deck)
   end
 
   if busted?(dealer_cards)
@@ -248,7 +256,7 @@ loop do
     play_again? ? next : break
   else
     prompt "Dealer stays at #{total(dealer_cards)}"
-    sleep(2)
+    prompt_to_continue
   end
 
   display_end_of_round(cash_amounts, dealer_cards, player_cards, turn)
