@@ -161,7 +161,17 @@ def display_cards(cards, owner, turn)
   puts SEPARATOR_THICK
   puts owner.upcase.center(GAME_WIDTH)
   puts SEPARATOR_THICK
-  puts hand.to_s.center(GAME_WIDTH)
+  board = ['','','','','']
+  hand.length.times do |i|
+    board[0] += "----- "
+    board[1] += "|#{hand[i][0]}  | "
+    board[2] += "| #{hand[i][1]} | "
+    board[3] += "|  #{hand[i][0]}| "
+    board[4] += "----- "
+  end
+  5.times do |i|
+    puts board[i].center(GAME_WIDTH)
+  end
   puts "Total : #{total} pts".center(GAME_WIDTH)
 end
 
