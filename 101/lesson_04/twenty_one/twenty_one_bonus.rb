@@ -151,9 +151,9 @@ def welcome_player(cash_amounts)
   prompt_to_continue
 end
 
-def display_cards(cards, owner, turn)
-  hand  = cards.dup
-  total = total(cards)
+def display_cards(card_values, owner, turn)
+  hand  = card_values.dup
+  total = total(card_values)
   if (owner == DEALER) && (turn != DEALER)
     hand[1] = ["?", "?"]
     total   = "??"
@@ -161,18 +161,23 @@ def display_cards(cards, owner, turn)
   puts SEPARATOR_THICK
   puts owner.upcase.center(GAME_WIDTH)
   puts SEPARATOR_THICK
-  board = ['','','','','']
-  hand.length.times do |i|
-    board[0] += "----- "
-    board[1] += "|#{hand[i][0]}  | "
-    board[2] += "| #{hand[i][1]} | "
-    board[3] += "|  #{hand[i][0]}| "
-    board[4] += "----- "
-  end
+  card_images = create_card_images(hand)
   5.times do |i|
-    puts board[i].center(GAME_WIDTH)
+    puts card_images[i].center(GAME_WIDTH)
   end
   puts "Total : #{total} pts".center(GAME_WIDTH)
+end
+
+def create_card_images(hand)
+  card_images = ['', '', '', '', '']
+  hand.length.times do |i|
+    card_images[0] += "----- "
+    card_images[1] += "|#{hand[i][0]}  | "
+    card_images[2] += "| #{hand[i][1]} | "
+    card_images[3] += "|  #{hand[i][0]}| "
+    card_images[4] += "----- "
+  end
+  card_images
 end
 
 def display_table(cash_amounts, dealer_cards, player_cards, turn)
