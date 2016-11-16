@@ -1,3 +1,5 @@
+require 'pry'
+
 GAME_WIDTH   = 80
 ZONE_WIDTH   = (GAME_WIDTH / 4)
 SEPARATOR    = ("-" * GAME_WIDTH).freeze
@@ -149,25 +151,31 @@ def welcome_player(cash_amounts)
   prompt_to_continue
 end
 
-def display_cards(cards, owner)
+def display_cards(cards, owner, turn)
+  hand  = cards.dup
+  total = total(cards)
+  if (owner == DEALER) && (turn != DEALER)
+    hand[1] = ["?", "?"]
+    total   = "??"
+  end
   puts SEPARATOR_THICK
   puts owner.upcase.center(GAME_WIDTH)
   puts SEPARATOR_THICK
-  puts cards.to_s.center(GAME_WIDTH)
-  puts "Total : #{total(cards)} pts".center(GAME_WIDTH)
+  puts hand.to_s.center(GAME_WIDTH)
+  puts "Total : #{total} pts".center(GAME_WIDTH)
 end
 
-def display_table(cash_amounts, dealer_cards, player_cards)
+def display_table(cash_amounts, dealer_cards, player_cards, turn)
   clear_screen
   display_score_banner(cash_amounts)
-  display_cards(dealer_cards, DEALER)
-  display_cards(player_cards, PLAYER)
+  display_cards(dealer_cards, DEALER, turn)
+  display_cards(player_cards, PLAYER, turn)
   puts SEPARATOR
 end
 
-def display_end_of_round(cash_amounts, dealer_cards, player_cards)
+def display_end_of_round(cash_amounts, dealer_cards, player_cards, turn)
   adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
-  display_table(cash_amounts, dealer_cards, player_cards)
+  display_table(cash_amounts, dealer_cards, player_cards, turn)
   display_result(dealer_cards, player_cards)
 end
 
@@ -182,9 +190,9 @@ loop do
   player_cards = deal_two_cards(deck)
   dealer_cards = deal_two_cards(deck)
 
-  display_table(cash_amounts, dealer_cards, player_cards)
-
+  turn = PLAYER
   loop do
+    display_table(cash_amounts, dealer_cards, player_cards, turn)
     player_turn = nil
     loop do
       prompt "Would you like to (h)it or (s)tay?"
@@ -195,32 +203,32 @@ loop do
 
     if player_turn == 'h'
       player_cards << deck.pop
-      display_table(cash_amounts, dealer_cards, player_cards)
+      display_table(cash_amounts, dealer_cards, player_cards, turn)
     end
 
     break if player_turn == 's' || busted?(player_cards)
   end
 
+  turn = DEALER
   if busted?(player_cards)
-    display_end_of_round(cash_amounts, dealer_cards, player_cards)
+    display_end_of_round(cash_amounts, dealer_cards, player_cards, turn)
     break if game_over?(cash_amounts)
     play_again? ? next : break
   else
     prompt "You stayed at #{total(player_cards)}"
   end
 
-  prompt "Dealer turn..."
   loop do
     break if busted?(dealer_cards) || total(dealer_cards) >= DEALER_LIMIT
 
     prompt "Dealer hits! ..."
     sleep(2)
     dealer_cards << deck.pop
-    display_table(cash_amounts, dealer_cards, player_cards)
+    display_table(cash_amounts, dealer_cards, player_cards, turn)
   end
 
   if busted?(dealer_cards)
-    display_end_of_round(cash_amounts, dealer_cards, player_cards)
+    display_end_of_round(cash_amounts, dealer_cards, player_cards, turn)
     break if game_over?(cash_amounts)
     play_again? ? next : break
   else
@@ -228,7 +236,7 @@ loop do
     sleep(2)
   end
 
-  display_end_of_round(cash_amounts, dealer_cards, player_cards)
+  display_end_of_round(cash_amounts, dealer_cards, player_cards, turn)
   break if game_over?(cash_amounts)
   break unless play_again?
 end
