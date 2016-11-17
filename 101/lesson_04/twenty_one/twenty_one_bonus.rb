@@ -1,24 +1,22 @@
-require 'pry'
-
-GAME_WIDTH   = 80
-ZONE_WIDTH   = (GAME_WIDTH / 4)
-SEPARATOR    = ("-" * GAME_WIDTH).freeze
-SEPARATOR_THICK = ("=" * GAME_WIDTH).freeze
-SCORE_LIMIT  = 21
-DEALER_LIMIT = (SCORE_LIMIT - 4)
-ROUND_WAGER  = 50
-NUM_CARDS    = %w(2 3 4 5 6 7 8 9).freeze
-FACE_CARDS   = %w(J Q K).freeze
-ACE          = 'A'.freeze
-VALUES       = (NUM_CARDS + FACE_CARDS + [ACE]).freeze
-SPADE        = "\u2660".freeze
-HEART        = "\u2661".freeze
-DIAMOND      = "\u2662".freeze
-CLUB         = "\u2663".freeze
-SUITS        = [SPADE, HEART, DIAMOND, CLUB].freeze
-DECK         = SUITS.product(VALUES).freeze
-DEALER       = "dealer".freeze
-PLAYER       = "you".freeze
+GAME_WIDTH        = 80
+ZONE_WIDTH        = (GAME_WIDTH / 4)
+SEPARATOR         = ("-" * GAME_WIDTH).freeze
+SEPARATOR_THICK   = ("=" * GAME_WIDTH).freeze
+SCORE_LIMIT       = 21
+DEALER_LIMIT      = (SCORE_LIMIT - 4)
+ROUND_WAGER       = 50
+NUM_CARDS         = %w(2 3 4 5 6 7 8 9).freeze
+FACE_CARDS        = %w(J Q K).freeze
+ACE               = 'A'.freeze
+VALUES            = (NUM_CARDS + FACE_CARDS + [ACE]).freeze
+SPADE             = "\u2660".freeze
+HEART             = "\u2661".freeze
+DIAMOND           = "\u2662".freeze
+CLUB              = "\u2663".freeze
+SUITS             = [SPADE, HEART, DIAMOND, CLUB].freeze
+DECK              = SUITS.product(VALUES).freeze
+DEALER            = "dealer".freeze
+PLAYER            = "you".freeze
 DEALER_START_CASH = 200
 PLAYER_START_CASH = 100
 
@@ -31,20 +29,8 @@ def clear_screen
 end
 
 def prompt_to_continue
-  prompt "Press 'Enter' to continue"
+  prompt "Press 'Enter' to continue..."
   gets
-end
-
-def display_score_banner(cash_amounts)
-  limit_msg     = "Take the Dealer's money to win!"
-  player_score  = "You : $#{cash_amounts[:player]}"
-  dealer_score  = "Dealer : $#{cash_amounts[:dealer]}"
-
-  puts SEPARATOR
-  puts player_score.ljust(ZONE_WIDTH) +
-       limit_msg.center(ZONE_WIDTH * 2) +
-       dealer_score.rjust(ZONE_WIDTH)
-  puts SEPARATOR
 end
 
 def shuffle_deck
@@ -57,8 +43,8 @@ end
 
 def total(cards)
   sum = 0
-  card_values = cards.map { |card| card[1] }
 
+  card_values = cards.map { |card| card[1] }
   card_values.each do |value|
     sum += value.to_i
     sum += 10 if FACE_CARDS.include?(value)
@@ -93,10 +79,20 @@ def detect_result(dealer_cards, player_cards)
   end
 end
 
-def display_result(dealer_cards, player_cards)
-  result = detect_result(dealer_cards, player_cards)
+def display_score_banner(cash_amounts)
+  win_msg       = "Take the Dealer's money to win!"
+  player_score  = "#{PLAYER.capitalize} : $#{cash_amounts[:player]}"
+  dealer_score  = "#{DEALER.capitalize} : $#{cash_amounts[:dealer]}"
 
-  case result
+  puts SEPARATOR
+  puts player_score.ljust(ZONE_WIDTH) +
+       win_msg.center(ZONE_WIDTH * 2) +
+       dealer_score.rjust(ZONE_WIDTH)
+  puts SEPARATOR
+end
+
+def display_result(dealer_cards, player_cards)
+  case detect_result(dealer_cards, player_cards)
   when :player_busted
     prompt "You busted! Dealer wins!"
   when :dealer_busted
@@ -123,14 +119,19 @@ end
 
 def play_again?
   puts "-------------"
-  prompt "Play again? (y/n)"
-  answer = gets.chomp
-  answer.downcase.start_with?('y')
+  yes_no = ''
+  prompt("Keep playing? (Y/N)")
+  loop do
+    yes_no = gets.chomp.downcase
+    break if yes_no == 'y' || yes_no == 'n'
+    prompt("Please reply with 'Y' or 'N'...")
+  end
+  yes_no == 'y' ? TRUE : FALSE
 end
 
 def display_rules
   puts <<-RULES
-  How to play '#{SCORE_LIMIT}'!
+  How to play '#{SCORE_LIMIT}':
   - Win a round by scoring closest to #{SCORE_LIMIT}, without going over
     ~ A player that goes over #{SCORE_LIMIT} "busts" & the other player wins
   - You and the Dealer will each receive two cards
@@ -160,7 +161,7 @@ def display_cards(card_values, owner, turn)
   5.times do |i|
     puts card_images[i].center(GAME_WIDTH)
   end
-  puts "Total : #{total} pts".center(GAME_WIDTH)
+  puts "Total : #{total} pts.".center(GAME_WIDTH)
 end
 
 def create_card_images(hand)
@@ -190,7 +191,7 @@ def display_end_of_round(cash_amounts, dealer_cards, player_cards, turn)
 end
 
 def game_over?(cash_amounts)
-  cash_amounts.any? { |_key, value| value.zero? }
+  cash_amounts.any? { |_owner, amount| amount.zero? }
 end
 
 def player_turn(cash_amounts, dealer_cards, player_cards, turn, deck)
@@ -200,7 +201,7 @@ def player_turn(cash_amounts, dealer_cards, player_cards, turn, deck)
     prompt "Would you like to (h)it or (s)tay?"
     action = gets.chomp.downcase
     break if ['h', 's', 'hit', 'stay'].include?(action)
-    prompt "Please enter 'h' or 's'."
+    prompt "Please enter 'h' or 's'..."
   end
 
   if ['h', 'hit'].include?(action)
@@ -211,14 +212,13 @@ def player_turn(cash_amounts, dealer_cards, player_cards, turn, deck)
 end
 
 def dealer_turn(cash_amounts, dealer_cards, player_cards, turn, deck)
-  prompt "Dealer hits! ..."
+  prompt "Dealer hits!"
   prompt_to_continue
   dealer_cards << deck.pop
   display_table(cash_amounts, dealer_cards, player_cards, turn)
 end
 
 cash_amounts = { player: PLAYER_START_CASH, dealer: DEALER_START_CASH }
-
 clear_screen
 display_score_banner(cash_amounts)
 display_rules
@@ -236,7 +236,7 @@ loop do
   end
 
   if !busted?(player_cards)
-    prompt "You stayed at #{total(player_cards)}"
+    prompt "#{PLAYER.capitalize} stayed at #{total(player_cards)} pts."
     prompt_to_continue
 
     turn = DEALER
@@ -247,7 +247,7 @@ loop do
     end
 
     if !busted?(dealer_cards)
-      prompt "Dealer stays at #{total(dealer_cards)}"
+      prompt "#{DEALER.capitalize} stays at #{total(dealer_cards)} pts."
       prompt_to_continue
     end
   end
