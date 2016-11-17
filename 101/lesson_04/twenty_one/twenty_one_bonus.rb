@@ -235,28 +235,21 @@ loop do
     break if ['s', 'stay'].include?(action) || busted?(player_cards)
   end
 
-  turn = DEALER
-  if busted?(player_cards)
-    display_end_of_round(cash_amounts, dealer_cards, player_cards, turn)
-    break if game_over?(cash_amounts)
-    play_again? ? next : break
-  else
+  if !busted?(player_cards)
     prompt "You stayed at #{total(player_cards)}"
     prompt_to_continue
-  end
 
-  loop do
-    break if busted?(dealer_cards) || total(dealer_cards) >= DEALER_LIMIT
-    dealer_turn(cash_amounts, dealer_cards, player_cards, turn, deck)
-  end
+    turn = DEALER
+    display_table(cash_amounts, dealer_cards, player_cards, turn)
+    loop do
+      break if busted?(dealer_cards) || total(dealer_cards) >= DEALER_LIMIT
+      dealer_turn(cash_amounts, dealer_cards, player_cards, turn, deck)
+    end
 
-  if busted?(dealer_cards)
-    display_end_of_round(cash_amounts, dealer_cards, player_cards, turn)
-    break if game_over?(cash_amounts)
-    play_again? ? next : break
-  else
-    prompt "Dealer stays at #{total(dealer_cards)}"
-    prompt_to_continue
+    if !busted?(dealer_cards)
+      prompt "Dealer stays at #{total(dealer_cards)}"
+      prompt_to_continue
+    end
   end
 
   display_end_of_round(cash_amounts, dealer_cards, player_cards, turn)
