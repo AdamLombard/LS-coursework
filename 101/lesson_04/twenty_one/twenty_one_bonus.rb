@@ -80,9 +80,9 @@ def detect_result(dealer_cards, player_cards)
 end
 
 def display_score_banner(cash_amounts)
-  win_msg       = "Take the Dealer's money to win!"
-  player_score  = "#{PLAYER.capitalize} : $#{cash_amounts[:player]}"
-  dealer_score  = "#{DEALER.capitalize} : $#{cash_amounts[:dealer]}"
+  win_msg      = "Take the Dealer's money to win!"
+  player_score = "#{PLAYER.capitalize} : $#{cash_amounts[:player]}"
+  dealer_score = "#{DEALER.capitalize} : $#{cash_amounts[:dealer]}"
 
   puts SEPARATOR
   puts player_score.ljust(ZONE_WIDTH) +
@@ -91,8 +91,8 @@ def display_score_banner(cash_amounts)
   puts SEPARATOR
 end
 
-def display_result(dealer_cards, player_cards)
-  case detect_result(dealer_cards, player_cards)
+def display_result(result)
+  case result
   when :player_busted
     prompt "You busted! Dealer wins!"
   when :dealer_busted
@@ -106,8 +106,8 @@ def display_result(dealer_cards, player_cards)
   end
 end
 
-def adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
-  case detect_result(dealer_cards, player_cards)
+def adjust_cash_amounts(cash_amounts, result)
+  case result
   when :player_busted, :dealer
     cash_amounts[:player] -= ROUND_WAGER
     cash_amounts[:dealer] += ROUND_WAGER
@@ -119,14 +119,14 @@ end
 
 def play_again?
   puts "-------------"
-  yes_no = ''
+  response = ''
   prompt("Keep playing? (Y/N)")
   loop do
-    yes_no = gets.chomp.downcase
-    break if yes_no == 'y' || yes_no == 'n'
+    response = gets.chomp.downcase
+    break if response == 'y' || response == 'n'
     prompt("Please reply with 'Y' or 'N'...")
   end
-  yes_no == 'y' ? TRUE : FALSE
+  response == 'y'
 end
 
 def display_rules
@@ -158,19 +158,19 @@ def display_cards(card_values, owner, turn)
   puts owner.upcase.center(GAME_WIDTH)
   puts SEPARATOR_THICK
   card_images = create_card_images(hand)
-  5.times do |i|
-    puts card_images[i].center(GAME_WIDTH)
+  5.times do |index|
+    puts card_images[index].center(GAME_WIDTH)
   end
   puts "Total : #{total} pts.".center(GAME_WIDTH)
 end
 
 def create_card_images(hand)
   card_images = ['', '', '', '', '']
-  hand.length.times do |i|
+  hand.length.times do |index|
     card_images[0] += "----- "
-    card_images[1] += "|#{hand[i][0]}  | "
-    card_images[2] += "| #{hand[i][1]} | "
-    card_images[3] += "|  #{hand[i][0]}| "
+    card_images[1] += "|#{hand[index][0]}  | "
+    card_images[2] += "| #{hand[index][1]} | "
+    card_images[3] += "|  #{hand[index][0]}| "
     card_images[4] += "----- "
   end
   card_images
@@ -185,9 +185,11 @@ def display_table(cash_amounts, dealer_cards, player_cards, turn)
 end
 
 def display_end_of_round(cash_amounts, dealer_cards, player_cards, turn)
-  adjust_cash_amounts(cash_amounts, dealer_cards, player_cards)
+  result = detect_result(dealer_cards, player_cards)
+
+  adjust_cash_amounts(cash_amounts, result)
   display_table(cash_amounts, dealer_cards, player_cards, turn)
-  display_result(dealer_cards, player_cards)
+  display_result(result)
 end
 
 def game_over?(cash_amounts)
@@ -222,7 +224,7 @@ cash_amounts = { player: PLAYER_START_CASH, dealer: DEALER_START_CASH }
 clear_screen
 display_score_banner(cash_amounts)
 display_rules
-prompt SEPARATOR
+puts SEPARATOR
 prompt_to_continue
 loop do
   deck         = shuffle_deck
