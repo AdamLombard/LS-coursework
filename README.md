@@ -1,2 +1,2 @@
 # LS-coursework
-Coursework for LaunchSchool
+Coursework for LaunchSchool.
