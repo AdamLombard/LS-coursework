@@ -1,0 +1,1 @@
+Symbols are written with this syntax: `:Santa`

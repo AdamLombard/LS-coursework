@@ -1,0 +1,1 @@
+The method `String#rjust` is used to right justify a `String` object.

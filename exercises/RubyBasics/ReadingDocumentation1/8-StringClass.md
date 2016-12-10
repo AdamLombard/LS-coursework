@@ -1,0 +1,1 @@
+http://ruby-doc.org/core-#.#.#/String.html

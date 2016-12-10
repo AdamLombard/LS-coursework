@@ -1,7 +1,5 @@
-NUMBERS = [1, 2, 3]
-
-def try
-  puts NUMBERS.inspect
+def my_method(a, b = 2, c = 3, d, e)
+  p [a, b, c, d, e]
 end
 
-try
+my_method(4, 5, 6)
