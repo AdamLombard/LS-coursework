@@ -8,6 +8,9 @@ We will be asked to code several small programs. Be familiar with:
 - looping/iterating over a collection, and how to control iteration flow. Specifically, know when to use `next` and when to use `break`.
 - ability to communicate clearly
 
+# Methods to Review
+- #insect
+
 # To Do
 
 ##### Ruby Basic exercises
