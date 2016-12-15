@@ -1,5 +1,8 @@
-def my_method(a, b = 2, c = 3, d, e)
-  p [a, b, c, d, e]
-end
+say_hello = true
+counter   = 0
 
-my_method(4, 5, 6)
+while say_hello
+  puts 'Hello!'
+  counter += 1
+  say_hello = false if counter == 5
+end
