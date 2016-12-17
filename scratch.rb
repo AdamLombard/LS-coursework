@@ -1,5 +1,10 @@
-friends = ['Sarah', 'John', 'Hannah', 'Dave']
+def greeting
+  puts 'Hello!'
+end
 
-for friend in friends
-  puts "Hello, #{friend}!"
+number_of_greetings = 2
+
+while number_of_greetings > 0
+  greeting
+  number_of_greetings -= 1
 end

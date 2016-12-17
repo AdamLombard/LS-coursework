@@ -9,7 +9,7 @@ We will be asked to code several small programs. Be familiar with:
 - ability to communicate clearly
 
 # Methods to Review
-- #insect
+- ```#inspect```
 
 # To Do
 
