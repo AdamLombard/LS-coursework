@@ -1,9 +1,8 @@
-def average(numbers)
-  sum = numbers.reduce { |sum, num | sum + num }
-  sum / numbers.length
+def calculate_bonus(salary, allow)
+  allow ? salary / 2 : 0
 end
 
 
-
-puts average([1, 5, 87, 45, 8, 8]) == 25
-puts average([9, 47, 23, 95, 16, 52]) == 40
+puts calculate_bonus(2800, true) == 1400
+puts calculate_bonus(1000, false) == 0
+puts calculate_bonus(50000, true) == 25000
