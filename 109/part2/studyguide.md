@@ -5,11 +5,10 @@
 # Areas of Familiarity
 We will be asked to code several small programs. Be familiar with:
 - simple arrays and hashes
-- looping/iterating over a collection, and how to control iteration flow. Specifically, know when to use `next` and when to use `break`.
+- looping/iterating over a collection, and how to control iteration flow. Specifically...
+  - [ ] know when to use `next` and...
+  - [ ] when to use `break`.
 - ability to communicate clearly
-
-# Methods to Review
-- ```#inspect```
 
 # To Do
 
@@ -54,5 +53,5 @@ _The interview questions will be around the caliber of these. Best students do a
 - Medium 2
 - Advanced 1
 
-- **re-read the study guid page**
+- **re-read the study guide page**
 - **warm up for 1 hr beforehand**
