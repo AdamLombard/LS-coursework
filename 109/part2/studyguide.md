@@ -13,8 +13,8 @@ We will be asked to code several small programs. Be familiar with:
 # To Do
 
 ##### Ruby Basic exercises
-- [ ] Reading Documentation 1
-- [ ] Reading Documentation 2
+- [x] Reading Documentation 1
+- [x] Reading Documentation 2
 - [ ] Variable Scope
 - [ ] Loops 1
 - [ ] Loops 2
