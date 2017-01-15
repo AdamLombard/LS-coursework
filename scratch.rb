@@ -1,8 +1,13 @@
-loop do
-  number = rand(1..10)   # a random number between 1 and 10
-  puts "Hello! #{number}"
-  if number == 5
-    puts 'Exiting...'
-    break
+def multiply(numbers, multiplier)
+  multiplied_nums = []
+  counter = 0
+
+  loop do
+    break if counter == numbers.size
+    multiplied_nums << numbers[counter] * multiplier
+    counter += 1
   end
+
+  multiplied_nums
 end
+
