@@ -147,4 +147,3 @@ books = [
 books.sort_by { |book| book[:published]}
 ```
 ---
-
